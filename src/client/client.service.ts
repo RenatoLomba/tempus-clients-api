@@ -23,8 +23,13 @@ export class ClientService {
   }
 
   async createClient(data: Prisma.ClientCreateInput): Promise<Client> {
+    const dataFormatted: Prisma.ClientCreateInput = {
+      ...data,
+      dtBirth: new Date(data.dtBirth.toLocaleString()),
+      cpf: data.cpf.replace(/[.,-\s]/g, ''),
+    };
     return this.prisma.client.create({
-      data: { ...data, dtBirth: new Date(data.dtBirth.toLocaleString()) },
+      data: { ...dataFormatted },
     });
   }
 
@@ -33,9 +38,17 @@ export class ClientService {
     data: Prisma.ClientUpdateInput;
   }): Promise<Client> {
     const { data, where } = params;
+    const dataFormatted: Prisma.ClientUpdateInput = {
+      ...data,
+      dtBirth: data.dtBirth && new Date(data.dtBirth.toString()),
+      cpf:
+        data.cpf &&
+        typeof data.cpf === 'string' &&
+        data.cpf.replace(/[.,-\s]/g, ''),
+    };
     return this.prisma.client.update({
       where,
-      data: { ...data, dtBirth: new Date(data.dtBirth.toString()) },
+      data: { ...dataFormatted },
     });
   }
 
